@@ -8,4 +8,4 @@ Feature: Return person info by its unique identifier
 
     Scenario: No person found by provided identifier
         When the person "john" is requested
-        Then the person should not be found
+        Then the response status code should be 404

@@ -1,6 +1,11 @@
+create_person:
+    methods: POST
+    path: /pessoas
+    controller: Fefas\BeRinha2023\App\UserInterface\Http\PersonController::post
+
 get_person:
     methods: GET
-    path: /persons/{id}
+    path: /pessoas/{id}
     controller: Fefas\BeRinha2023\App\UserInterface\Http\PersonController::get
 
 when@dev:

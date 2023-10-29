@@ -21,6 +21,11 @@ final class HttpClient
 
     public function postPerson(array $data): string
     {
+        var_dump($data);
+        $this->lastResponse = $this->client->post("/pessoas", [
+            GuzzleRequestOptions::JSON => $data,
+        ]);
+
         return 'replace-me-with-returned-uuid';
     }
 

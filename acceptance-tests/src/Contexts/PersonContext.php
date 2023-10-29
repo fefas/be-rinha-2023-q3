@@ -19,12 +19,13 @@ final class PersonContext implements Context
     }
 
     /**
+     * @Given the following person is created:
      * @Given the following persons were created:
      */
     public function post(TableNode $persons): void
     {
         foreach ($persons as $person) {
-            $nickname = $person['Nickname'];
+            $nickname = empty($person['Nickname']) ? null : $person['Nickname'];
             $name = $person['Name'];
             $birthday = $person['Birthday'];
             $stack = explode(' ', $person['Stack']);
@@ -32,7 +33,7 @@ final class PersonContext implements Context
             $id = $this->httpClient->postPerson([
                 'apelido' => $nickname,
                 'nome' => $name,
-                'nasciment' => $birthday,
+                'nascimento' => $birthday,
                 'stack' => $stack,
             ]);
 
@@ -49,10 +50,10 @@ final class PersonContext implements Context
     }
 
     /**
-     * @Then the person should not be found
+     * @Then the response status code should be :expected
      */
-    public function assertNotFound(): void
+    public function assertStatusCode(int $expected): void
     {
-        TestCase::assertEquals(404, $this->httpClient->lastResponseStatusCode());
+        TestCase::assertEquals($expected, $this->httpClient->lastResponseStatusCode());
     }
 }
