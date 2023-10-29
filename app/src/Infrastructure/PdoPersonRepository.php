@@ -7,7 +7,6 @@ use Fefas\BeRinha2023\App\Application\Person;
 use Fefas\BeRinha2023\App\Application\PersonRepository;
 use PDO;
 use PDOException;
-use function PHPUnit\Framework\stringContains;
 
 final readonly class PdoPersonRepository implements PersonRepository
 {
@@ -29,13 +28,19 @@ final readonly class PdoPersonRepository implements PersonRepository
 
         try {
             $this->insertPerson($person);
-            $this->insertPersonStack($person);
         } catch (PDOException $ex) {
             $this->dbConn->exec('ROLLBACK');
             if (false !== strpos($ex->getMessage(), 'Unique violation:')) {
                 throw new NicknameAlreadyTaken();
             }
 
+            throw $ex;
+        }
+
+        try {
+            $this->insertPersonStack($person);
+        } catch (PDOException $ex) {
+            $this->dbConn->exec('ROLLBACK');
             throw $ex;
         }
 
