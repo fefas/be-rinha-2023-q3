@@ -21,7 +21,6 @@ final class HttpClient
 
     public function postPerson(array $data): string
     {
-        var_dump($data);
         $this->lastResponse = $this->client->post("/pessoas", [
             GuzzleRequestOptions::JSON => $data,
         ]);
@@ -37,5 +36,15 @@ final class HttpClient
     public function lastResponseStatusCode(): int
     {
         return $this->lastResponse->getStatusCode();
+    }
+
+    public function lastResponseLocationHeader(): ?string
+    {
+        return $this->lastResponse->getHeaderLine('Location');
+    }
+
+    public function lastResponseBody(): array
+    {
+        return json_decode((string) $this->lastResponse->getBody(), true);
     }
 }

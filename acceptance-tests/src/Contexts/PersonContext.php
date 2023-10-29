@@ -5,6 +5,7 @@ namespace Fefas\BeRinha2023\AcceptanceTests\Contexts;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Fefas\BeRinha2023\AcceptanceTests\HttpClient;
+use PDO;
 use PHPUnit\Framework\TestCase;
 
 final class PersonContext implements Context
@@ -18,6 +19,18 @@ final class PersonContext implements Context
     ) {
     }
 
+    /** @BeforeScenario */
+    public function cleanTable(): void
+    {
+        $dbConn = new PDO(
+            "pgsql:host={$_ENV['DB_HOST']};port={$_ENV['DB_PORT']};dbname={$_ENV['DB_NAME']};",
+            $_ENV['DB_USER'],
+            $_ENV['DB_PASS'],
+        );
+
+        $dbConn->exec('DELETE FROM person');
+    }
+
     /**
      * @Given the following person is created:
      * @Given the following persons were created:
@@ -26,18 +39,24 @@ final class PersonContext implements Context
     {
         foreach ($persons as $person) {
             $nickname = empty($person['Nickname']) ? null : $person['Nickname'];
-            $name = $person['Name'];
+            $name = empty($person['Name']) ? null : $person['Name'];
             $birthday = $person['Birthday'];
             $stack = explode(' ', $person['Stack']);
 
-            $id = $this->httpClient->postPerson([
+            $name = is_numeric($name) ? (int) $name : $name;
+
+            $this->httpClient->postPerson([
                 'apelido' => $nickname,
                 'nome' => $name,
                 'nascimento' => $birthday,
                 'stack' => $stack,
             ]);
 
-            $this->idsPerNickname[$nickname] = $id;
+            $location = $this->httpClient->lastResponseLocationHeader();
+
+            if ('' !== $location) {
+                $this->idsPerNickname[$nickname] = substr($location, 9);
+            }
         }
     }
 
@@ -55,5 +74,22 @@ final class PersonContext implements Context
     public function assertStatusCode(int $expected): void
     {
         TestCase::assertEquals($expected, $this->httpClient->lastResponseStatusCode());
+    }
+
+    /**
+     * @Then the response body should be:
+     */
+    public function assertBody(TableNode $expected): void
+    {
+        $expected = $expected->getHash()[0];
+        $expected = [
+            'id' => $this->idsPerNickname[$expected['Nickname']],
+            'apelido' => $expected['Nickname'],
+            'nome' => $expected['Name'],
+            'nascimento' => $expected['Birthday'],
+            'stack' => explode(' ', $expected['Stack']),
+        ];
+
+        TestCase::assertEquals($expected, $this->httpClient->lastResponseBody());
     }
 }

@@ -26,15 +26,20 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
         --version=2.6.5 \
         --install-dir=/usr/local/bin \
         --filename=composer && \
+    curl -sSLf \
+        -o /usr/local/bin/install-php-extensions \
+        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    chmod +x \
+            /usr/local/bin/install-php-extensions && \
+    install-php-extensions pdo pdo_pgsql && \
     mkdir -p $DIRS
 
 WORKDIR $CODE_DIR
 
-COPY ./composer* ./symfony.lock ./
-RUN composer install $COMPOSER_INSTALL_OPTIONS
-
 COPY ./ ./
-RUN composer dump-autoload $COMPOSER_DUMP_AUTOLOAD_OPTIONS && \
+
+RUN composer install $COMPOSER_INSTALL_OPTIONS && \
+    composer dump-autoload $COMPOSER_DUMP_AUTOLOAD_OPTIONS && \
     console cache:warmup
 
 ENTRYPOINT ["php", "-S", "0.0.0.0:9000", "./public/index.php"]

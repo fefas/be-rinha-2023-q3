@@ -13,6 +13,12 @@ RUN apk add --no-cache \
         --version=2.6.5 \
         --install-dir=/usr/local/bin \
         --filename=composer && \
+    curl -sSLf \
+        -o /usr/local/bin/install-php-extensions \
+        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    chmod +x \
+            /usr/local/bin/install-php-extensions && \
+    install-php-extensions pdo pdo_pgsql && \
     rm -rf $HOME_DIR && \
     mkdir -p $CODE_DIR $COMPOSER_VENDOR_DIR
 
