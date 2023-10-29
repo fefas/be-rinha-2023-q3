@@ -33,3 +33,14 @@ Feature: Create person
             | fefas    | 1        | 1989-03-14 | PHP   |
         Then the response status code should be 400
 
+    Scenario: Stack must contain only strings
+        When the following person is created:
+            | Nickname | Name     | Birthday   | Stack |
+            | fefas    | Felipe   | 1989-03-14 | 1 PHP |
+        Then the response status code should be 400
+
+    Scenario: Birthday must contain a valid date
+        When the following person is created:
+            | Nickname | Name     | Birthday   | Stack |
+            | fefas    | Felipe   | 1989-22-14 | PHP   |
+        Then the response status code should be 400

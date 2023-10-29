@@ -12,7 +12,7 @@ final readonly class Person
         public string $nickname,
         public string $name,
         public DateTimeImmutable $birthday,
-        public array $stack,
+        public ?array $stack,
     ) {
     }
 
@@ -20,22 +20,30 @@ final readonly class Person
     {
         $nickname = $data['apelido'] ?? null;
         $name = $data['nome'] ?? null;
-        $birthday = $data['nascimento'];
+        $birthday = DateTimeImmutable::createFromFormat('Y-m-d', $data['nascimento']);
         $stack = $data['stack'];
 
         if (null === $nickname || null === $name) {
             throw new ArgumentCannotBeNull();
         }
 
-        if (!is_string($name)) {
+        if (!is_string($name) || $birthday->format('Y-m-d') !== $data['nascimento']) {
             throw new InvalidArgumentType();
+        }
+
+        if (null !== $stack) {
+            foreach ($stack as $s) {
+                if (!is_string($s)) {
+                    throw new InvalidArgumentType();
+                }
+            }
         }
 
         return new self(
             id: Uuid::uuid6()->toString(),
             nickname: $nickname,
             name: $name,
-            birthday: new DateTimeImmutable($birthday),
+            birthday: $birthday,
             stack: $stack,
         );
     }

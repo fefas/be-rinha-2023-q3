@@ -5,6 +5,7 @@ Feature: Return person info by its unique identifier
             | Nickname  | Name     | Birthday   | Stack                     |
             | fefas     | Felipe   | 1989-03-14 | PHP                       |
             | malukenho | Jeferson | 2001-01-01 | PHP Kotlin C++ Javascript |
+            | pmchato   | Marcelo  | 1985-01-01 |                           |
 
     Scenario: No person found by provided identifier
         When the person "john" is requested

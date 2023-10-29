@@ -40,10 +40,17 @@ final class PersonContext implements Context
         foreach ($persons as $person) {
             $nickname = empty($person['Nickname']) ? null : $person['Nickname'];
             $name = empty($person['Name']) ? null : $person['Name'];
-            $birthday = $person['Birthday'];
-            $stack = explode(' ', $person['Stack']);
-
             $name = is_numeric($name) ? (int) $name : $name;
+            $birthday = $person['Birthday'];
+            $stack = empty($person['Stack']) ? null : $person['Stack'];
+            if (null !== $stack) {
+                $stack = explode(' ', $person['Stack']);
+                foreach ($stack as $i => $s) {
+                    if (is_numeric($s)) {
+                        $stack[$i] = (int) $s;
+                    }
+                }
+            }
 
             $this->httpClient->postPerson([
                 'apelido' => $nickname,
