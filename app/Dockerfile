@@ -13,12 +13,15 @@ ENV DIRS $CACHE_DIR $CODE_DIR $COMPOSER_VENDOR_DIR $LOGS_DIR
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_INSTALL_OPTIONS --no-interaction --no-scripts --no-cache
-ENV COMPOSER_DUMP_AUTOLOAD_OPTIONS --no-scripts
 
 ENV ENV ${BUILD_TARGET}
 ENV PATH $PATH:$CODE_DIR/bin:$COMPOSER_VENDOR_DIR/bin
 
 FROM base AS dev
+
+FROM base AS prod
+
+ENV COMPOSER_INSTALL_OPTIONS $COMPOSER_INSTALL_OPTIONS --no-dev --optimize-autoloader --classmap-authoritative
 
 FROM ${BUILD_TARGET}
 
@@ -41,5 +44,4 @@ USER www-data
 COPY --chown=www-data ./ ./
 
 RUN composer install $COMPOSER_INSTALL_OPTIONS && \
-    composer dump-autoload $COMPOSER_DUMP_AUTOLOAD_OPTIONS && \
     console cache:warmup

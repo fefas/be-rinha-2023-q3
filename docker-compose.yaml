@@ -2,11 +2,11 @@ version: '3.9'
 
 x-app:
   &app
-  image: fefas/be-rinha-2023/app
+  image: fefas/be-rinha-2023/app:${BUILD_TARGET}
   build:
     context: app
     args:
-      BUILD_TARGET: dev
+      BUILD_TARGET: ${BUILD_TARGET}
   environment:
     DB_HOST: db
     DB_PORT: 5432
@@ -59,3 +59,17 @@ services:
     deploy:
       resources:
         limits: { cpus: '0.75', memory: 1.5GB }
+
+  acceptance-tests:
+    image: fefas/be-rinha-2023/acceptance-tests
+    build:
+      context: acceptance-tests
+    environment:
+      APP_URL: http://nginx:80
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: be_rinha_2023
+      DB_USER: fefas
+      DB_PASS: secret
+    depends_on:
+      nginx: { condition: service_healthy }

@@ -2,7 +2,7 @@ MAKEFLAGS += --silent --always-make
 .PHONY: *
 
 build-target ?= prod
-deploy-mode ?= dev
+deploy-mode ?= prod
 
 #
 # deploy
@@ -68,4 +68,4 @@ docker/compose/files:
 docker/compose: project-name = -p fefas-be-rinha-2023
 docker/compose: compose-files = $(addprefix -f,$(shell make docker/compose/files))
 docker/compose:
-	docker compose ${project-name} ${compose-files} ${cmd}
+	BUILD_TARGET=${build-target} docker compose ${project-name} ${compose-files} ${cmd}
