@@ -1,0 +1,18 @@
+{
+    "type": "project",
+
+    "autoload": {
+        "psr-4": { "Fefas\\BeRinha2023\\AcceptanceTests\\": "src/" }
+    },
+
+    "require": {
+        "bauhaus/service-resolver": "^0.2.0",
+        "behat/behat": "^3.11",
+        "guzzlehttp/guzzle": "^7.5",
+        "phpunit/phpunit": "^9.5"
+    },
+
+    "config": {
+        "sort-packages": true
+    }
+}

@@ -1,0 +1,17 @@
+framework:
+    cache: ~
+    secret: real-secret-not-needed-for-this-project
+    http_method_override: false
+    php_errors: { log: true }
+    router: { utf8: true }
+    session: ~
+
+when@dev:
+    web_profiler:
+        toolbar: true
+        intercept_redirects: false
+
+    framework:
+        profiler:
+            only_exceptions: false
+            collect_serializer_data: true

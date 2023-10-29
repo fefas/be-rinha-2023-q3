@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  app:
+    image: fefas/be-rinha-2023/app
+    build:
+      context: app
+      args:
+        BUILD_TARGET: dev
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:9000" ]
+      start_period: 0s
+      interval: 1s
+      timeout: 1s
+      retries: 5
+

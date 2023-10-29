@@ -1,0 +1,5 @@
+*
+!behat.yaml
+!composer.*
+!src/
+!features/

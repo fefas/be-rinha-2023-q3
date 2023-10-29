@@ -1,0 +1,9 @@
+default:
+  suites:
+    app:
+      services: Fefas\BeRinha2023\AcceptanceTests\ServiceContainerBuilder::instance
+      autowire: true
+
+      paths: [ '%paths.base%/features/' ]
+      contexts:
+        - Fefas\BeRinha2023\AcceptanceTests\Contexts\PersonContext
