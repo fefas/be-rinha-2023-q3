@@ -23,26 +23,23 @@ final readonly class PdoPersonRepository implements PersonRepository
     }
 
     /** {@inheritdoc} */
-    public function save(Person $createPerson): void
+    public function save(Person $person): void
     {
-        $st = $this->dbConn->prepare(<<<SQL
-            INSERT INTO person (id, nickname, name, birthday, stack)
-            VALUES (:id, :nickname, :name, :birthday, :stack)
-            SQL);
+        $this->dbConn->exec('BEGIN TRANSACTION');
 
         try {
-            $st->execute([
-                'id' => $createPerson->id,
-                'nickname' => $createPerson->nickname,
-                'name' => $createPerson->name,
-                'birthday' => $createPerson->birthday->format('Y-m-d'),
-                'stack' => json_encode($createPerson->stack),
-            ]);
+            $this->insertPerson($person);
+            $this->insertPersonStack($person);
         } catch (PDOException $ex) {
+            $this->dbConn->exec('ROLLBACK');
             if (false !== strpos($ex->getMessage(), 'Unique violation:')) {
                 throw new NicknameAlreadyTaken();
             }
+
+            throw $ex;
         }
+
+        $this->dbConn->exec('COMMIT');
     }
 
     public function get(string $id): ?Person
@@ -57,5 +54,61 @@ final readonly class PdoPersonRepository implements PersonRepository
         $result = $st->fetchAll();
 
         return [] === $result ? null : Person::reconstituteFromDbRow($result[0]);
+    }
+
+    /** {@inheritdoc } */
+    public function find(string $needle): array
+    {
+        $st = $this->dbConn->prepare(<<<SQL
+            SELECT *
+            FROM person
+            WHERE id IN (
+                SELECT id FROM person WHERE nickname LIKE :needle OR name LIKE :needle
+                UNION
+                SELECT person_id FROM person_stack WHERE stack LIKE :needle
+            )
+            SQL);
+
+        $st->execute(['needle' => "%$needle%"]);
+
+        return array_map(
+            fn (array $r): Person => Person::reconstituteFromDbRow($r),
+            $st->fetchAll(),
+        );
+    }
+
+    private function insertPerson(Person $person): void
+    {
+        $st = $this->dbConn->prepare(<<<SQL
+            INSERT INTO person (id, nickname, name, birthday, stack)
+            VALUES (:id, :nickname, :name, :birthday, :stack)
+            SQL);
+
+        $st->execute([
+            'id' => $person->id,
+            'nickname' => $person->nickname,
+            'name' => $person->name,
+            'birthday' => $person->birthday->format('Y-m-d'),
+            'stack' => json_encode($person->stack),
+        ]);
+    }
+
+    private function insertPersonStack(Person $person): void
+    {
+        if (null === $person->stack) {
+            return;
+        }
+
+        $st = $this->dbConn->prepare(<<<SQL
+            INSERT INTO person_stack (person_id, stack)
+            VALUES (:personId, :stack)
+            SQL);
+
+        foreach ($person->stack as $stack) {
+            $st->execute([
+                'personId' => $person->id,
+                'stack' => $stack,
+            ]);
+        }
     }
 }

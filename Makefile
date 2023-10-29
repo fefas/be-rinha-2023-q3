@@ -23,8 +23,9 @@ clean:
 %/sh:
 	make docker/compose/run service=${*} entrypoint=sh
 
+acceptance-tests: option = $(if ${tags},--tags=${tags})
 acceptance-tests:
-	make docker/compose/run service=acceptance-tests
+	make docker/compose/run service=acceptance-tests cmd=${option}
 
 acceptance-tests/features/%:
 	make docker/compose/run service=acceptance-tests cmd='features/${*}

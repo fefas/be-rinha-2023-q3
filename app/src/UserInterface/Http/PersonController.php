@@ -44,4 +44,15 @@ final readonly class PersonController
 
         return new JsonResponse($person->toResponseData());
     }
+
+    public function search(Request $request): Response
+    {
+        $needle = $request->query->get('t');
+        $persons = $this->personRepository->find($needle);
+
+        return new JsonResponse(array_map(
+            static fn (Person $p): array => $p->toResponseData(),
+            $persons,
+        ));
+    }
 }

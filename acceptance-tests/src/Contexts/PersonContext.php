@@ -29,6 +29,7 @@ final class PersonContext implements Context
         );
 
         $dbConn->exec('DELETE FROM person');
+        $dbConn->exec('DELETE FROM person_stack');
     }
 
     /**
@@ -76,6 +77,14 @@ final class PersonContext implements Context
     }
 
     /**
+     * @When searching persons by :needle is requested
+     */
+    public function search(string $needle): void
+    {
+        $this->httpClient->searchPerson($needle);
+    }
+
+    /**
      * @Then the response status code should be :expected
      */
     public function assertStatusCode(int $expected): void
@@ -84,19 +93,38 @@ final class PersonContext implements Context
     }
 
     /**
-     * @Then the response body should be:
+     * @Then the response body should have the following person:
      */
-    public function assertBody(TableNode $expected): void
+    public function assertOnePerson(TableNode $expected): void
     {
-        $expected = $expected->getHash()[0];
-        $expected = [
-            'id' => $this->idsPerNickname[$expected['Nickname']],
-            'apelido' => $expected['Nickname'],
-            'nome' => $expected['Name'],
-            'nascimento' => $expected['Birthday'],
-            'stack' => explode(' ', $expected['Stack']),
-        ];
+        $this->assertBody($expected, [$this->httpClient->lastResponseBody()]);
+    }
 
-        TestCase::assertEquals($expected, $this->httpClient->lastResponseBody());
+    /**
+     * @Then the response body should have the following persons:
+     */
+    public function assertManyPersons(TableNode $expected): void
+    {
+        $this->assertBody($expected, $this->httpClient->lastResponseBody());
+    }
+
+    private function assertBody(TableNode $expectedTable, array $actual): void
+    {
+        $expected = [];
+        foreach ($expectedTable as $expectedRow) {
+            $expected[] = [
+                'apelido' => $expectedRow['Nickname'],
+                'nome' => $expectedRow['Name'],
+                'nascimento' => $expectedRow['Birthday'],
+                'stack' => explode(' ', $expectedRow['Stack']),
+            ];
+        }
+
+        foreach ($actual as $i => $a) {
+            unset($a['id']);
+            $actual[$i] = $a;
+        }
+
+        TestCase::assertEquals($expected, $actual);
     }
 }

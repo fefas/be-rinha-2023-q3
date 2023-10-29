@@ -8,6 +8,11 @@ get_person:
     path: /pessoas/{id}
     controller: Fefas\BeRinha2023\App\UserInterface\Http\PersonController::get
 
+search_person:
+    methods: GET
+    path: /pessoas
+    controller: Fefas\BeRinha2023\App\UserInterface\Http\PersonController::search
+
 when@dev:
     _errors:
         resource: '@FrameworkBundle/Resources/config/routing/errors.xml'

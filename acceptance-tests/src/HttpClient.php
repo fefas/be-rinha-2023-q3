@@ -33,6 +33,11 @@ final class HttpClient
         $this->lastResponse = $this->client->get("/pessoas/$id");
     }
 
+    public function searchPerson(string $needle): void
+    {
+        $this->lastResponse = $this->client->get("/pessoas?t=$needle");
+    }
+
     public function lastResponseStatusCode(): int
     {
         return $this->lastResponse->getStatusCode();
