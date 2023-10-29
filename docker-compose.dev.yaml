@@ -6,14 +6,14 @@ services:
     build:
       context: acceptance-tests
     environment:
-      APP_URL: http://app:9000
+      APP_URL: http://nginx:80
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: be_rinha_2023
       DB_USER: fefas
       DB_PASS: secret
     depends_on:
-      app: { condition: service_healthy }
+      nginx: { condition: service_healthy }
     volumes:
       - ./acceptance-tests/behat.yaml:/var/www/code/behat.yaml
       - ./acceptance-tests/composer.json:/var/www/code/composer.json
@@ -22,7 +22,6 @@ services:
       - ./acceptance-tests/src:/var/www/code/src
 
   app:
-    ports: [ "8080:9000" ]
     volumes:
       - ./app/composer.json:/var/www/code/composer.json
       - ./app/composer.lock:/var/www/code/composer.lock

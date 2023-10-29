@@ -32,14 +32,14 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
     chmod +x \
             /usr/local/bin/install-php-extensions && \
     install-php-extensions pdo pdo_pgsql && \
-    mkdir -p $DIRS
+    mkdir -p $DIRS && \
+    chown -R www-data:www-data $BASE_DIR/*
 
 WORKDIR $CODE_DIR
+USER www-data
 
-COPY ./ ./
+COPY --chown=www-data ./ ./
 
 RUN composer install $COMPOSER_INSTALL_OPTIONS && \
     composer dump-autoload $COMPOSER_DUMP_AUTOLOAD_OPTIONS && \
     console cache:warmup
-
-ENTRYPOINT ["php", "-S", "0.0.0.0:9000", "./public/index.php"]

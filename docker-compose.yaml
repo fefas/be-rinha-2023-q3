@@ -1,6 +1,19 @@
 version: '3.9'
 
 services:
+  nginx:
+    image: fefas/be-rinha-2023/nginx
+    build:
+      context: nginx
+    ports: [ "9999:80" ]
+    depends_on: [ app ]
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:80" ]
+      start_period: 0s
+      interval: 1s
+      timeout: 1s
+      retries: 20
+
   app:
     image: fefas/be-rinha-2023/app
     build:
@@ -15,12 +28,6 @@ services:
       DB_PASS: secret
     depends_on:
       db: { condition: service_healthy }
-    healthcheck:
-      test: [ "CMD", "curl", "http://localhost:9000" ]
-      start_period: 0s
-      interval: 1s
-      timeout: 1s
-      retries: 5
 
   db:
     image: fefas/be-rinha-2023/db
