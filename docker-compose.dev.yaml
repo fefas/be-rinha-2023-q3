@@ -1,5 +1,16 @@
 version: '3.9'
 
+x-app:
+  &app
+  volumes:
+    - ./app/composer.json:/var/www/code/composer.json
+    - ./app/composer.lock:/var/www/code/composer.lock
+    - ./app/symfony.lock:/var/www/code/symfony.lock
+    - ./app/bin:/var/www/code/bin
+    - ./app/config:/var/www/code/config
+    - ./app/public:/var/www/code/public
+    - ./app/src:/var/www/code/src
+
 services:
   acceptance-tests:
     image: fefas/be-rinha-2023/acceptance-tests
@@ -21,13 +32,8 @@ services:
       - ./acceptance-tests/features:/var/www/code/features
       - ./acceptance-tests/src:/var/www/code/src
 
-  app:
-    volumes:
-      - ./app/composer.json:/var/www/code/composer.json
-      - ./app/composer.lock:/var/www/code/composer.lock
-      - ./app/symfony.lock:/var/www/code/symfony.lock
-      - ./app/bin:/var/www/code/bin
-      - ./app/config:/var/www/code/config
-      - ./app/public:/var/www/code/public
-      - ./app/src:/var/www/code/src
+  app1:
+    <<: *app
 
+  app2:
+    <<: *app
